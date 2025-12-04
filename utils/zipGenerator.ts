@@ -17,8 +17,11 @@ export const generateEnhancedZip = async (
 ): Promise<Blob> => {
     const zip = new JSZip();
 
-    // Create folder structure
-    const imagesFolder = zip.folder('01_imagenes');
+    // Check if only images are being exported (no folders needed)
+    const onlyImages = !options.includeAudio && !options.includeMusic && !options.includeMetadata;
+
+    // Create folder structure only if needed
+    const imagesFolder = onlyImages ? null : zip.folder('01_imagenes');
     const audioFolder = zip.folder('02_audio');
     const musicFolder = zip.folder('03_musica');
     const metadataFolder = zip.folder('00_metadata');
@@ -30,7 +33,13 @@ export const generateEnhancedZip = async (
             const base64Data = item.imageUrl.split(',')[1];
             const safeHeadline = item.headline.replace(/[^a-z0-9]/gi, '_').substring(0, 50);
             const filename = `escena_${String(index + 1).padStart(2, '0')}_${safeHeadline}.png`;
-            imagesFolder?.file(filename, base64Data, { base64: true });
+
+            // Add directly to root if only images, otherwise to folder
+            if (onlyImages) {
+                zip.file(filename, base64Data, { base64: true });
+            } else {
+                imagesFolder?.file(filename, base64Data, { base64: true });
+            }
         }
     });
 
