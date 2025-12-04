@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Puter Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #1a1a2e;
+            color: #fff;
+        }
+
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            background: #10b981;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 10px 5px;
+        }
+
+        button:hover {
+            background: #059669;
+        }
+
+        #output {
+            margin-top: 20px;
+            padding: 20px;
+            background: #0f0e1b;
+            border: 1px solid #10b981;
+            border-radius: 5px;
+            min-height: 100px;
+        }
+
+        .loading {
+            color: #fbbf24;
+        }
+
+        .success {
+            color: #10b981;
+        }
+
+        .error {
+            color: #ef4444;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>🧪 Puter SDK Test</h1>
+    <p>Prueba si el SDK de Puter.com funciona correctamente</p>
+
+    <button onclick="testChat()">Test Chat (GPT-5 Nano)</button>
+    <button onclick="testAudio()">Test Audio (ElevenLabs)</button>
+    <button onclick="clearOutput()">Clear</button>
+
+    <div id="output">
+        <p>Haz clic en un botón para probar...</p>
+    </div>
+
+    <script src="https://js.puter.com/v2/"></script>
+    <script>
+        const output = document.getElementById('output');
+
+        function log(message, type = 'info') {
+            const p = document.createElement('p');
+            p.className = type;
+            p.textContent = message;
+            output.appendChild(p);
+        }
+
+        function clearOutput() {
+            output.innerHTML = '<p>Listo para probar...</p>';
+        }
+
+        async function testChat() {
+            clearOutput();
+            log('🔄 Testing GPT-5 Nano chat...', 'loading');
+
+            try {
+                const response = await puter.ai.chat('What is life? Respond in one sentence.', {
+                    model: 'gpt-5-nano',
+                });
+                log('✅ Success! Response:', 'success');
+                log(response, 'info');
+            } catch (error) {
+                log('❌ Error:', 'error');
+                log(error.message || error, 'error');
+                console.error('Full error:', error);
+            }
+        }
+
+        async function testAudio() {
+            clearOutput();
+            log('🔄 Testing ElevenLabs text-to-speech...', 'loading');
+
+            try {
+                const audio = await puter.ai.txt2speech(
+                    "Hello! This is a test of ElevenLabs voice through Puter.",
+                    {
+                        provider: "elevenlabs",
+                        model: "eleven_multilingual_v2",
+                        voice: "21m00Tcm4TlvDq8ikWAM", // Rachel
+                        output_format: "mp3_44100_128"
+                    }
+                );
+                log('✅ Success! Audio generated. Playing...', 'success');
+                audio.play();
+            } catch (error) {
+                log('❌ Error:', 'error');
+                log(error.message || error, 'error');
+                console.error('Full error:', error);
+            }
+        }
+
+        // Auto-test on load
+        window.addEventListener('load', () => {
+            log('✅ Puter SDK loaded successfully!', 'success');
+            log('Puter object available: ' + (typeof puter !== 'undefined'), 'info');
+        });
+    </script>
+</body>
+
+</html>
