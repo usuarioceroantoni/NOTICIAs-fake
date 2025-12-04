@@ -260,6 +260,16 @@ const App: React.FC = () => {
     // Filter only items with generated images
     const itemsWithImages = newsItems.filter(item => item.imageUrl);
 
+    console.log('🔍 DEBUG ZIP - Total news items:', newsItems.length);
+    console.log('🔍 DEBUG ZIP - Items with images:', itemsWithImages.length);
+    console.log('🔍 DEBUG ZIP - Image URLs (first 100 chars):',
+      itemsWithImages.map((item, idx) => ({
+        index: idx,
+        headline: item.headline.substring(0, 30),
+        imageUrlPreview: item.imageUrl?.substring(0, 100)
+      }))
+    );
+
     if (itemsWithImages.length === 0) {
       showToast("No hay imágenes generadas para descargar.", 'warning');
       return;
@@ -267,6 +277,8 @@ const App: React.FC = () => {
 
     setIsZipping(true);
     try {
+      console.log('📦 Generando ZIP con', itemsWithImages.length, 'imágenes...');
+
       const zipBlob = await generateEnhancedZip(itemsWithImages, null, {
         includeAudio: false,
         includeMusic: false,
@@ -276,18 +288,37 @@ const App: React.FC = () => {
         newsStyle,
       });
 
+      console.log('✅ ZIP generado. Tamaño:', zipBlob.size, 'bytes');
+
+      // Generar un timestamp único para evitar caché
+      const timestamp = Date.now();
+      const safeTopicName = topic.replace(/[^a-z0-9]/gi, '_').substring(0, 30);
+      const filename = `MAQUINA_Images_${safeTopicName}_${timestamp}.zip`;
+
+      // Crear el enlace de descarga
       const url = window.URL.createObjectURL(zipBlob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `MAQUINA_Images_${topic.replace(/[^a-z0-9]/gi, '_')}_${Date.now()}.zip`;
+      a.download = filename;
+
+      // Asegurar que el enlace se añade al DOM
       document.body.appendChild(a);
+
+      console.log('💾 Iniciando descarga:', filename);
+
+      // Forzar el click
       a.click();
-      window.URL.revokeObjectURL(url);
-      document.body.removeChild(a);
+
+      // Cleanup con un pequeño delay para asegurar la descarga
+      setTimeout(() => {
+        window.URL.revokeObjectURL(url);
+        document.body.removeChild(a);
+        console.log('🧹 Limpieza completada');
+      }, 100);
 
       showToast(`✓ ZIP con ${itemsWithImages.length} imágenes descargado!`, 'success');
     } catch (err) {
-      console.error("ZIP Error:", err);
+      console.error("❌ ZIP Error:", err);
       showToast("Error creando el archivo ZIP.", 'error');
     } finally {
       setIsZipping(false);

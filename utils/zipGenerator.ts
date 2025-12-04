@@ -15,6 +15,9 @@ export const generateEnhancedZip = async (
     bgMusicUrl: string | null,
     options: ZipExportOptions
 ): Promise<Blob> => {
+    console.log('🏗️ [ZIP Generator] Iniciando generación de ZIP...');
+    console.log('📊 [ZIP Generator] Total items recibidos:', newsItems.length);
+
     const zip = new JSZip();
 
     // Check if only images are being exported (no folders needed)
@@ -28,20 +31,40 @@ export const generateEnhancedZip = async (
 
     // Add images
     const images = newsItems.filter(item => item.imageUrl);
+    console.log('🖼️ [ZIP Generator] Imágenes a procesar:', images.length);
+
+    let processedCount = 0;
     images.forEach((item, index) => {
         if (item.imageUrl) {
-            const base64Data = item.imageUrl.split(',')[1];
-            const safeHeadline = item.headline.replace(/[^a-z0-9]/gi, '_').substring(0, 50);
-            const filename = `escena_${String(index + 1).padStart(2, '0')}_${safeHeadline}.png`;
+            try {
+                // Validate base64 data
+                const parts = item.imageUrl.split(',');
+                if (parts.length < 2) {
+                    console.warn(`⚠️ [ZIP Generator] Imagen ${index} tiene formato inválido`);
+                    return;
+                }
 
-            // Add directly to root if only images, otherwise to folder
-            if (onlyImages) {
-                zip.file(filename, base64Data, { base64: true });
-            } else {
-                imagesFolder?.file(filename, base64Data, { base64: true });
+                const base64Data = parts[1];
+                const safeHeadline = item.headline.replace(/[^a-z0-9]/gi, '_').substring(0, 50);
+                const filename = `escena_${String(index + 1).padStart(2, '0')}_${safeHeadline}.png`;
+
+                console.log(`✅ [ZIP Generator] Procesando imagen ${index + 1}/${images.length}: ${filename}`);
+
+                // Add directly to root if only images, otherwise to folder
+                if (onlyImages) {
+                    zip.file(filename, base64Data, { base64: true });
+                } else {
+                    imagesFolder?.file(filename, base64Data, { base64: true });
+                }
+
+                processedCount++;
+            } catch (imgError) {
+                console.error(`❌ [ZIP Generator] Error procesando imagen ${index}:`, imgError);
             }
         }
     });
+
+    console.log(`📦 [ZIP Generator] Total imágenes procesadas: ${processedCount}/${images.length}`);
 
     // Add audio narrations
     if (options.includeAudio) {
@@ -132,9 +155,16 @@ Generado con MÁQUINA.NEWS v2.0
         metadataFolder?.file('README.md', readme);
     }
 
-    return await zip.generateAsync({
+
+    console.log('🔄 [ZIP Generator] Generando blob final...');
+
+    const blob = await zip.generateAsync({
         type: 'blob',
         compression: 'DEFLATE',
         compressionOptions: { level: 6 }
     });
+
+    console.log(`✅ [ZIP Generator] ZIP completado! Tamaño: ${blob.size} bytes (${(blob.size / 1024).toFixed(2)} KB)`);
+
+    return blob;
 };
