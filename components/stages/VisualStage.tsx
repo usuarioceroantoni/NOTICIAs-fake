@@ -119,7 +119,7 @@ export const VisualStage: React.FC<VisualStageProps> = ({
                             disabled={isZipping}
                             className={`px-6 py-2 font-bold uppercase text-[10px] tracking-widest transition-all bg-white text-black hover:bg-gray-200 flex items-center gap-2`}
                         >
-                            {isZipping ? 'COMPRIMIENDO...' : 'DESCARGAR ZIP'}
+                            {isZipping ? 'DESCARGANDO...' : '⬇️ DESCARGAR TODAS'}
                         </button>
                     </div>
                 </div>

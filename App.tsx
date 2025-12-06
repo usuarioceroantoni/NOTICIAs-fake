@@ -257,72 +257,9 @@ const App: React.FC = () => {
   };
 
   const handleDownloadZip = async () => {
-    // Filter only items with generated images
-    const itemsWithImages = newsItems.filter(item => item.imageUrl);
-
-    console.log('🔍 DEBUG ZIP - Total news items:', newsItems.length);
-    console.log('🔍 DEBUG ZIP - Items with images:', itemsWithImages.length);
-    console.log('🔍 DEBUG ZIP - Image URLs (first 100 chars):',
-      itemsWithImages.map((item, idx) => ({
-        index: idx,
-        headline: item.headline.substring(0, 30),
-        imageUrlPreview: item.imageUrl?.substring(0, 100)
-      }))
-    );
-
-    if (itemsWithImages.length === 0) {
-      showToast("No hay imágenes generadas para descargar.", 'warning');
-      return;
-    }
-
-    setIsZipping(true);
-    try {
-      console.log('📦 Generando ZIP con', itemsWithImages.length, 'imágenes...');
-
-      const zipBlob = await generateEnhancedZip(itemsWithImages, null, {
-        includeAudio: false,
-        includeMusic: false,
-        includeMetadata: false,
-        projectName: topic || 'Proyecto MAQUINA.NEWS',
-        topic,
-        newsStyle,
-      });
-
-      console.log('✅ ZIP generado. Tamaño:', zipBlob.size, 'bytes');
-
-      // Generar un timestamp único para evitar caché
-      const timestamp = Date.now();
-      const safeTopicName = topic.replace(/[^a-z0-9]/gi, '_').substring(0, 30);
-      const filename = `MAQUINA_Images_${safeTopicName}_${timestamp}.zip`;
-
-      // Crear el enlace de descarga
-      const url = window.URL.createObjectURL(zipBlob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = filename;
-
-      // Asegurar que el enlace se añade al DOM
-      document.body.appendChild(a);
-
-      console.log('💾 Iniciando descarga:', filename);
-
-      // Forzar el click
-      a.click();
-
-      // Cleanup con un pequeño delay para asegurar la descarga
-      setTimeout(() => {
-        window.URL.revokeObjectURL(url);
-        document.body.removeChild(a);
-        console.log('🧹 Limpieza completada');
-      }, 100);
-
-      showToast(`✓ ZIP con ${itemsWithImages.length} imágenes descargado!`, 'success');
-    } catch (err) {
-      console.error("❌ ZIP Error:", err);
-      showToast("Error creando el archivo ZIP.", 'error');
-    } finally {
-      setIsZipping(false);
-    }
+    // Esta función ahora descarga TODAS las imágenes individualmente
+    // para evitar problemas con macOS que descomprime automáticamente los ZIPs
+    await handleDownloadAllImagesIndividually();
   };
 
   const handleGenerateFromScript = async () => {
@@ -446,7 +383,7 @@ const App: React.FC = () => {
     try {
       const link = document.createElement('a');
       link.href = item.imageUrl;
-      link.download = `escena_${index + 1}_${item.headline.replace(/[^a-z0-9]/gi, '_')}.png`;
+      link.download = `escena_${String(index + 1).padStart(2, '0')}_${item.headline.replace(/[^a-z0-9]/gi, '_').substring(0, 30)}.png`;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
@@ -456,6 +393,28 @@ const App: React.FC = () => {
       console.error("Error downloading image:", err);
       showToast("Error al descargar imagen.", 'error');
     }
+  };
+
+  const handleDownloadAllImagesIndividually = async () => {
+    const itemsWithImages = newsItems.filter(item => item.imageUrl);
+
+    if (itemsWithImages.length === 0) {
+      showToast("No hay imágenes generadas para descargar.", 'warning');
+      return;
+    }
+
+    showToast(`Descargando ${itemsWithImages.length} imágenes...`, 'info');
+
+    // Descargar cada imagen con un pequeño delay entre cada una
+    for (let i = 0; i < newsItems.length; i++) {
+      if (newsItems[i]?.imageUrl) {
+        handleDownloadSingleImage(i);
+        // Pequeño delay para evitar que el navegador bloquee las descargas
+        await new Promise(resolve => setTimeout(resolve, 300));
+      }
+    }
+
+    showToast(`✓ ${itemsWithImages.length} imágenes descargadas a tu carpeta Descargas!`, 'success');
   };
 
   const [currentAudioUrl, setCurrentAudioUrl] = useState<string | null>(null);
