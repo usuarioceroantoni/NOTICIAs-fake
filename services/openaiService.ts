@@ -96,43 +96,61 @@ export const generateNewsIdeas = async (
       4. impactLevel: "Viral" o "Alto"
     `;
     } else {
-        systemInstruction = `Eres un creador de contenido conspirativo viral estilo ÚLTIMA HORA. Tu tarea es crear narraciones dramáticas de EXACTAMENTE ${characterLimit} caracteres. IMPORTANTE: La narración debe tener EXACTAMENTE ${characterLimit} caracteres.`;
+        systemInstruction = `Eres un creador de contenido de ÚLTIMA HORA estilo viral sensacionalista. Tu tarea es crear narraciones dramáticas FLUIDAS de EXACTAMENTE ${characterLimit} caracteres. El tono es urgente, narrativo y contundente con estructura escalada. IMPORTANTE: La narración debe tener EXACTAMENTE ${characterLimit} caracteres, ni uno más ni uno menos.`;
         promptContext = `
-      Tema de la Conspiración: "${topic}".
+      Tema Central: "${topic}".
 
-      Genera EXACTAMENTE 3 ESCENAS que formen una narrativa continua de conspiración.
+      Genera EXACTAMENTE 3 ESCENAS que formen una narrativa continua escalada.
 
       FORMATO OBLIGATORIO PARA EL CAMPO 'summary' (NARRACIÓN):
 
-      La narración debe seguir esta estructura y tener EXACTAMENTE ${characterLimit} CARACTERES:
+      La narración debe seguir esta ESTRUCTURA FLUIDA de EXACTAMENTE ${characterLimit} CARACTERES:
 
-      1. APERTURA DRAMÁTICA (80-100 caracteres):
+      1. GANCHO INICIAL (80-100 caracteres):
          - DEBE EMPEZAR OBLIGATORIAMENTE CON: "ÚLTIMA HORA.) ¡EL DESASTRE YA EMPEZÓ!"
+         - Seguido de una frase impactante que establezca el tema
+         - Ejemplo: "La diplomacia ha sido reemplazada por la Marina."
 
-      2. INTRODUCCIÓN DEL MISTERIO (150-200 caracteres):
-         - Presenta el descubrimiento/revelación principal
+      2. MENSAJE DIRECTO SIN PALABRAS (100-150 caracteres):
+         - Describe la acción principal en narrativa continua
+         - Ejemplo: "México acaba de enviar un mensaje directo y contundente a Estados Unidos sin decir una sola palabra."
+         - Transición: "Descubre los detalles escalofriantes que desataron la crisis:"
 
-      3. DETALLES ESCALOFRIANTES (400-500 caracteres):
-         - Lista 3-4 puntos específicos de evidencia
+      3. DESARROLLO NARRATIVO FLUIDO (400-500 caracteres):
+         - Describe los hechos en NARRATIVA CONTINUA, NO en puntos de lista
+         - Usa conectores fluidos como "Mientras...", "El acto se ejecutó para...", "Lo que nadie niega es que..."
+         - Incluye detalles específicos: lugares, nombres, acciones concretas
+         - Mantén el ritmo urgente con frases cortas y directas
+         - Ejemplo: "Elementos de la Marina llegaron en formación para retirar los letreros. No fue mantenimiento: fue una reafirmación de soberanía. Mientras la bandera ondeaba, los letreros fueron quitados uno por uno."
 
-      4. DECLARACIÓN IMPACTANTE (100-150 caracteres):
-         - Cita textual dramática entre comillas
+      4. MENSAJE CLARO (80-120 caracteres):
+         - Frase contundente en comillas que resume el mensaje
+         - Estructura: "El mensaje es claro: [FRASE PODEROSA]"
+         - Ejemplo: "El mensaje es claro: 'Aquí manda México, este es territorio nacional.'"
 
-      5. ADVERTENCIA VITAL (200-250 caracteres):
-         - Conecta con protección familiar/personal
+      5. ADVERTENCIA VITAL (150-200 caracteres):
+         - Estructura: "Advertencia vital: [RIESGO O CONSECUENCIA]"
+         - Conecta el costo con el valor (dignidad, soberanía, verdad)
+         - Ejemplo: "Advertencia vital: El acto reafirma la soberanía, pero abre un riesgo diplomático. El riesgo de esta confrontación es el precio de la dignidad nacional."
 
-      6. PREGUNTA EXISTENCIAL FINAL (100-150 caracteres):
-         - Cierre abierto que genera reflexión
+      6. PREGUNTA DE ENGAGEMENT FINAL (100-150 caracteres):
+         - Pregunta DIRECTA al lector para generar comentarios
+         - Estructura: "¿Crees que [PROTAGONISTA] hizo lo correcto al [ACCIÓN]?"
+         - Cierre con alternativas: "Comenta si esto es el inicio de [OPCIÓN A] o de [OPCIÓN B]."
 
-      REGLAS ESTRICTAS:
-      - El campo 'summary' debe tener EXACTAMENTE ${characterLimit} caracteres
-      - NO incluyas emojis, etiquetas ni conteos  
-      - Mantén el tono urgente y conspirativo
+      REGLAS DE ESTILO (CRÍTICO):
+      - Narrativa FLUIDA y continua, NO uses listas de puntos en el texto final
+      - El campo 'summary' debe tener EXACTAMENTE ${characterLimit} caracteres (cuenta espacios y puntuación)
+      - NO incluyas emojis, hashtags ni conteos en el campo summary
+      - Usa frases cortas (15-25 palabras máximo) para mantener ritmo urgente
+      - Conectores narrativos: "Mientras", "El mensaje es claro", "Lo que nadie niega"
+      - Mantén coherencia temática de inicio a fin
+      - Sin despedidas formales, termina con la pregunta de engagement
 
       ESTRUCTURA DE CADA ESCENA:
       1. headline: Título slug-format en minúsculas con guiones
-      2. summary: NARRACIÓN DE EXACTAMENTE ${characterLimit} CARACTERES
-      3. imagePrompt: Visual en inglés estilo 'leaked document', 'classified footage'
+      2. summary: NARRACIÓN FLUIDA DE EXACTAMENTE ${characterLimit} CARACTERES
+      3. imagePrompt: Visual en inglés estilo 'dramatic news footage', 'breaking news', 'high tension scene', '4k photojournalism'
       4. impactLevel: "Viral" o "Cataclísmico"
     `;
     }
